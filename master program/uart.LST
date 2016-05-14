@@ -1,0 +1,110 @@
+C51 COMPILER V7.06   UART                                                                  06/06/2014 09:50:48 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN uart.OBJ
+COMPILER INVOKED BY: D:\English AZH\keil\C51\BIN\C51.EXE uart.c COMPACT BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /* ************************************************************************
+   2          
+   3                                                                  UART  C8051F130¥Æø⁄≥Ã–Ú
+   4          
+   5          ***************************************************************************
+   6           √˚≥∆£∫UART  C8051F130¥Æø⁄≥Ã–Ú
+   7            ±º‰£∫2014.04.08
+   8           ƒ⁄»›£∫±æ≥Ã–Ú∞¸¿®£∫
+   9                     C8051F130µƒUART0°¢UART1≥Ã–Ú
+  10           Àµ√˜£∫UART0:¥˝
+  11          
+  12                     UART1:≤È‘É∑¢ÀÕ£¨÷–∂œΩ” ’(Ω” ’µƒ ˝æ›∑≈‘⁄buffer[] ˝◊È÷–)£¨UART1≤®Ãÿ¬ 9600/115200ø…±‰£¨
+  13          *************************************************************************** */
+  14          #include<c8051f130.h>
+  15          #include"uart.h"
+  16          #include"delay.h"
+  17          
+  18          unsigned char Uart1_Buffer_Flag=0;    //±Íº«bufferΩ” ’ ˝◊È
+  19          unsigned char Uart1_Received_Flag=0;    //buffer ˝◊ÈΩ” ’ÕÍ±œ±Í÷æ
+  20          
+  21          unsigned char buffer[65]={0};            //uart÷–∂œΩ” ’ ˝◊È
+  22          
+  23          //--------------------------------------------------------------------
+  24          
+  25          //--------------------------------------------------------------------
+  26          void Uart1_Judge_received()                     //≈–∂œ¥Æø⁄1 «∑ÒΩ” ’ÕÍ≥…
+  27          {
+  28   1              unsigned int i;
+  29   1      
+  30   1              if(     Uart1_Received_Flag == 1)//»Ù…œ“ªΩMbuffer ˝æ›»´≤øΩ” ’ÕÍ≥…£¨œ¬“ªÃı÷∏¡Óµ»¥˝Ω” ’ ±£¨œ»∞—Uart1_Received_F
+             -lag±Í÷æ«Â0;
+  31   1              {
+  32   2                      Uart1_Received_Flag = 0;
+  33   2              }
+  34   1      //---------------------------------------
+  35   1              while(Uart1_Received_Flag == 0)
+  36   1              {
+  37   2                      for(i=0;i<=6000;i++)
+  38   2                      {
+  39   3                              delay_ms(2);
+  40   3                              if(Uart1_Received_Flag == 1)//¥Æø⁄1 «∑ÒΩ” ’ÕÍ±œ£¨’˝≥£ÕÀ≥ˆ±Í÷æ                      
+  41   3                              { 
+  42   4                                       break;
+  43   4                              }
+  44   3                      }
+  45   2      
+  46   2                      break;
+  47   2              }
+  48   1      //-----------------------------------------
+  49   1      }
+  50          //--------------------------------------------------------------------
+  51          
+  52          //--------------------------------------------------------------------
+  53          void Uart1_SendByte(unsigned char value)
+  54          {
+C51 COMPILER V7.06   UART                                                                  06/06/2014 09:50:48 PAGE 2   
+
+  55   1              char  SFRPAGE_SAVE  = SFRPAGE;
+  56   1          SFRPAGE = UART1_PAGE;       
+  57   1      
+  58   1              SBUF1=value;            // ∑¢ÀÕ ˝æ›µΩuart1
+  59   1              while(!TI1);            // µ»¥˝∑¢ÀÕ1∏ˆ◊÷Ω⁄ ˝æ›ÕÍ≥…
+  60   1              TI1=0;                                  // «Â≥˝÷–∂œ±Í÷æ
+  61   1      
+  62   1              SFRPAGE = SFRPAGE_SAVE;
+  63   1      }
+  64          
+  65          void uart1()interrupt 20        //uart÷–∂œ£¨ µœ÷Ω” ’π¶ƒ‹£¨Ω” ’µƒ ˝æ›∑≈‘⁄buffer ˝◊È÷–
+  66          {
+  67   1              unsigned char SFRPAGE_SAVE = SFRPAGE;
+  68   1              SFRPAGE=UART1_PAGE;
+  69   1              
+  70   1              if(RI1==1)                 //Ω” ’±Í÷æ
+  71   1          {  
+  72   2                      Uart1_Buffer_Flag++;
+  73   2                      buffer[Uart1_Buffer_Flag-1] = SBUF1;
+  74   2                      RI1 = 0; 
+  75   2              }
+  76   1              if((buffer[Uart1_Buffer_Flag-1]==0x03)&&(Uart1_Buffer_Flag>(buffer[2]+4)))//≤‚ ‘±Í ∂£¨≈–∂œ◊Ó∫Û“ª∏ˆ◊÷∑˚ «∑
+             -Ò’˝»∑Ω” ’ÕÍ±œ
+  77   1              {
+  78   2                  Uart1_Buffer_Flag = 0;      // ±Í÷æ«Â0£¨œ¬¥Œbuffer ˝◊ÈΩ” ’ ˝æ› ±ø…“‘¥”buffer[0]ø™ º
+  79   2                      Uart1_Received_Flag = 1; //±Í÷æ÷√1£¨±Ì æ“ª◊È ˝æ›“—æ≠Ω” ’ÕÍ±œ
+  80   2              }
+  81   1      
+  82   1              SFRPAGE = SFRPAGE_SAVE;
+  83   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    167    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =     67       2
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

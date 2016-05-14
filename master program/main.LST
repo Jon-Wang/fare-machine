@@ -1,0 +1,71 @@
+C51 COMPILER V7.06   MAIN                                                                  06/06/2014 09:50:47 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: D:\English AZH\keil\C51\BIN\C51.EXE main.c COMPACT BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /* ************************************************************************
+   2          
+   3                                                                  綜合程序-CPU读取  主程序
+   4          
+   5          ***************************************************************************
+   6           名称：綜合程序-CPU读取  主程序
+   7           时间：2014.04.30
+   8           内容：本程序包括：
+   9                 CPU卡读写、PSAM卡读写、M1卡读写
+  10           说明：M1卡/CPU卡操作流程优化，对操作流程进行封装(其中卡类型、语音提示根据UID自定义)
+  11                     綜合程序优化，主要是简化 2014 04-30 12:00
+  12          *************************************************************************** */
+  13          #include "system.h"
+  14          #include "uart.h"
+  15          #include "card.h"
+  16          #include "function.h"
+  17          //-----------------------------------------------------
+  18          //main()主函數
+  19          //-----------------------------------------------------
+  20          void main()
+  21          {   
+  22   1              unsigned char i;
+  23   1              Init_Device();
+  24   1              //---------------------------------------------------------------------
+  25   1              while ( 1 )
+  26   1              {
+  27   2                      DS1302_PLAY_TIME();                                     //1302时间显示
+  28   2      
+  29   2                      CARD_CONNECT_Enable();                                  //连接卡片
+  30   2                      Uart1_Judge_received(); 
+  31   2                      //-------------------------------------------------
+  32   2                      if(buffer[3] == 0xC0)                                   //连卡正确，则存储UID
+  33   2                      {
+  34   3                              for (i = 0;i<4;i++)                     //存储4Hex的UID
+  35   3                              {
+  36   4                                      CARD_UID_buffer[i] = buffer[i+9];
+  37   4                              }
+  38   3                      }
+  39   2                      //-------------M1卡消费流程--------------------------
+  40   2                      M1_Operation_Process();                                 //M1卡消费流程
+  41   2                      
+  42   2                      //------------CPU卡消费流程--------------------------
+  43   2                      CPU_Operation_Process();                                //CPU卡消费流程
+  44   2              } //while(1);
+  45   1          //----------------------------------------------------------------------
+  46   1      }//main();
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     45    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V7.06   MAIN                                                                  06/06/2014 09:50:47 PAGE 2   
+
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

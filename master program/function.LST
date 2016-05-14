@@ -1,0 +1,98 @@
+C51 COMPILER V7.06   FUNCTION                                                              06/06/2014 09:50:49 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE FUNCTION
+OBJECT MODULE PLACED IN function.OBJ
+COMPILER INVOKED BY: D:\English AZH\keil\C51\BIN\C51.EXE function.c COMPACT BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          #include "function.h"
+   2          #include "card.h"
+   3          #include "ch453.h"
+   4          #include "yuyin.h"
+   5          #include "delay.h"
+   6          #include "ds1302.h"
+   7          //------------------------------
+   8          unsigned int remaining_sum = 0;                 //存储消费余额
+   9          //----------------------------------------------------------
+  10          //----------------------------------------------------------
+  11          void CARD_UID_Distinction_Play()        //根据UID，显示每张卡的消费金额，及语音提醒
+  12          {
+  13   1              unsigned char i;
+  14   1              switch(CARD_UID_buffer[1])
+  15   1              {
+  16   2                      case 0xBF:      
+  17   2                              Display_Consumption_Sum(9);                      // 显示消费金额 N1 0.9
+  18   2                              Display_Remaining_Sum(remaining_sum);//显示消费余额
+  19   2                              yuyin_play(0x00);                                        //N1 
+  20   2                              break;         
+  21   2                      case 0x16:      
+  22   2                              Display_Consumption_Sum(8);                      // 显示消费金额 N2 0.8         
+  23   2                              Display_Remaining_Sum(remaining_sum);//显示消费余额
+  24   2                              yuyin_play(0x00);yuyin_play(0x02);       //N2    愛心卡
+  25   2                              break;         
+  26   2                      case 0x53:      
+  27   2                              Display_Consumption_Sum(7);                      // 显示消费金额 N3 0.7         
+  28   2                              Display_Remaining_Sum(remaining_sum);//显示消费余额
+  29   2                              yuyin_play(0x00);yuyin_play(0x03);       //N3    退休卡
+  30   2                              break;        
+  31   2                      case 0xD8:      
+  32   2                              Display_Consumption_Sum(6);                       // 显示消费金额 N4 0.6
+  33   2                              Display_Remaining_Sum(remaining_sum); //显示消费余额
+  34   2                              yuyin_play(0x00);yuyin_play(0x04);        //N4    老年卡
+  35   2                              break;  
+  36   2                      case 0x30:      
+  37   2                              Display_Consumption_Sum(5);                       // 显示消费金额 N4 0.5
+  38   2                              Display_Remaining_Sum(remaining_sum); //显示消费余额
+  39   2                              yuyin_play(0x00);yuyin_play(0x02);        //CPU   老年卡
+  40   2                              break;       
+  41   2                      default:                                      
+  42   2                              break;  
+  43   2              }
+  44   1      //      delay_ms(10000);
+  45   1               //-----------------------------------------------------------------
+  46   1              for (i = 7;i<13;i++ )
+  47   1              {       
+  48   2                      CH453_buf_index(i,0,CH453_S);  //读卡结束后，消费余额人为清空
+  49   2              }
+  50   1      }
+  51          //----------------------------------------------------------------------------
+  52          
+  53          //----------------------------------------------------------------------------
+  54          void DS1302_PLAY_TIME()                  //1302时间显示
+  55          {
+C51 COMPILER V7.06   FUNCTION                                                              06/06/2014 09:50:49 PAGE 2   
+
+  56   1              DS1302_PLAY();
+  57   1              CH453_buf_write(CH453_DIG2 | BCD_decode_tab[l_tmpdate[0]/10],CH453_F);delay_us( 1 );      //秒
+  58   1              CH453_buf_write(CH453_DIG1 | BCD_decode_tab[l_tmpdate[0]%10],CH453_F);delay_us( 1 );
+  59   1              CH453_buf_write(CH453_DIG4 | BCD_decode_tab[l_tmpdate[1]/10],CH453_F);delay_us( 1 );      //分
+  60   1              CH453_buf_write(CH453_DIG3 | BCD_decode_tab[l_tmpdate[1]%10],CH453_F);delay_us( 1 );
+  61   1      
+  62   1              CH453_buf_write(CH453_DIG5 | BCD_decode_tab[l_tmpdate[2]%10]  | 0x80,CH453_F);delay_us( 1 );
+  63   1              if(l_tmpdate[2]>9)
+  64   1              CH453_buf_write(CH453_DIG6 | BCD_decode_tab[l_tmpdate[2]/10],CH453_F);delay_us( 1 );      //时
+  65   1      
+  66   1              CH453_buf_write(CH453_DIG7 | BCD_decode_tab[l_tmpdate[3]/10],CH453_F);delay_us( 1 );      //日
+  67   1              CH453_buf_write(CH453_DIG8 | BCD_decode_tab[l_tmpdate[3]%10],CH453_F);delay_us( 1 );
+  68   1      //              CH453_buf_write(CH453_DIG10 | BCD_decode_tab[l_tmpdate[4]/10],CH453_F);delay_us( 1 );     //月
+  69   1              CH453_buf_write(CH453_DIG9 | BCD_decode_tab[l_tmpdate[4]%10],CH453_F);delay_us( 1 );
+  70   1              CH453_buf_write(CH453_DIG12 | BCD_decode_tab[l_tmpdate[6]/10],CH453_F);delay_us( 1 );     //年
+  71   1              CH453_buf_write(CH453_DIG11 | BCD_decode_tab[l_tmpdate[6]%10],CH453_F);delay_us( 1 );
+  72   1      
+  73   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    570    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =      2       1
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

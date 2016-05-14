@@ -1,0 +1,400 @@
+C51 COMPILER V7.06   SIM_CARD                                                              06/06/2014 09:50:48 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE SIM_CARD
+OBJECT MODULE PLACED IN sim_card.OBJ
+COMPILER INVOKED BY: D:\English AZH\keil\C51\BIN\C51.EXE sim_card.c COMPACT BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          #include "sim_card.h"
+   2          #include "delay.h"
+   3          #include "uart.h"
+   4          #include "intrins.h"
+   5          
+   6          uchar idata tmp[13]={0};    //´æ·ÅÃüÁîÁÙÊ±Êý¾Ý
+   7          uchar idata tnp[45]={0};    //´æ·ÅÃüÁîÁÙÊ±Êý¾Ý
+   8          
+   9          //****************************************************************************
+  10          // ÑÓÊ±1¸öETU£¨»ù±¾Ê±¼äµ¥Î»
+  11          // ÈçSIM¿¨Ê±ÖÓÆµÂÊÎª4MHz£¬ÔòETUÎª372/4M=93us
+  12          // 12MÊ±Ò»¸önopÑÓÊ±Ê±¼ä1us
+  13          //****************************************************************************
+  14          
+  15          //****************************************************************************
+  16          // ´ÓSIM¿¨¶ÁÈ¡Ò»¸ö×Ö½Ú
+  17          //****************************************************************************
+  18          uchar read_SIM_byte()
+  19          {
+  20   1      
+  21   1              uchar loop;
+  22   1              uchar recvdata = 0;
+  23   1                      
+  24   1              bit Parity = 0; //ÆæÅ¼Ð£ÑéÎ»
+  25   1      
+  26   1              char  SFRPAGE_SAVE  = SFRPAGE;
+  27   1              SFRPAGE = CONFIG_PAGE;
+  28   1      
+  29   1              while(SIM_IO); //µÈ´ýÆðÊ¼Î»
+  30   1              delay_us(104); // 93us
+  31   1              delay_us(104); // 93us
+  32   1              //delay_1_ETU(); //ÑÓÊ±Ò»¸öetu
+  33   1      
+  34   1              delay_us(52);
+  35   1              delay_us(52);
+  36   1              //delay_half_ETU(); //ÑÓÊ±°ë¸öetu
+  37   1              
+  38   1              for(loop=0;loop<8;loop++)
+  39   1              {
+  40   2                      recvdata >>= 1;
+  41   2                      if (SIM_IO)
+  42   2                      {
+  43   3                              recvdata |= 0x80;
+  44   3                      }
+  45   2                      Parity ^= SIM_IO;
+  46   2                      delay_us(104);// 93us
+  47   2                      delay_us(104);// 93us
+  48   2                      //delay_1_ETU(); //ÑÓÊ±Ò»¸öetu
+  49   2              }
+  50   1              Parity ^= SIM_IO;
+  51   1                      delay_us(104);// 93us
+  52   1                      delay_us(104);// 93us
+  53   1              //delay_1_ETU(); //ÑÓÊ±Ò»¸öetu
+  54   1              
+  55   1              if(!Parity) //´Ë×Ö½ÚÈçÍ¨¹ýÆæÅ¼Ð£ÑéÔòÔ­ÑùÏÔÊ¾£¬Í¨²»¹ýÔòÏÔÊ¾0x99
+C51 COMPILER V7.06   SIM_CARD                                                              06/06/2014 09:50:48 PAGE 2   
+
+  56   1              {
+  57   2                      return recvdata;
+  58   2              }
+  59   1              else
+  60   1              {
+  61   2                      return 0xff;
+  62   2                                
+  63   2              }
+  64   1      
+  65   1              SFRPAGE = SFRPAGE_SAVE;
+  66   1      }
+  67          //****************************************************************************
+  68          // ÏòSIM¿¨·¢ËÍÒ»¸ö×Ö½Ú
+  69          //****************************************************************************
+  70          void write_SIM_byte(uchar dataToSend)
+  71          {
+  72   1              uchar loop;
+  73   1              bit Parity = 0; //ÆæÅ¼Ð£ÑéÎ»
+  74   1      
+  75   1              char  SFRPAGE_SAVE  = SFRPAGE;
+  76   1              SFRPAGE = CONFIG_PAGE;
+  77   1      
+  78   1      
+  79   1              SIM_IO = 0; //·¢ËÍÆðÊ¼Î»
+  80   1              delay_us(104);
+  81   1              delay_us(104);
+  82   1      //      delay_1_ETU(); //ÑÓÊ±Ò»¸öetu
+  83   1              
+  84   1              for(loop=0;loop<8;loop++)
+  85   1              {
+  86   2                      SIM_IO = dataToSend & 0x01;
+  87   2                      Parity ^= dataToSend & 0x01;
+  88   2                      dataToSend >>= 1;
+  89   2                      delay_us(104);
+  90   2                      delay_us(104);
+  91   2      //              delay_1_ETU(); //ÑÓÊ±Ò»¸öetu
+  92   2              }
+  93   1              SIM_IO = Parity; //Èç¹ûÇ°8Î»Òì»òµÄ½á¹ûÊÇ1£¬ÔòÐ£ÑéÎ»·¢1£¬Èç¹û½á¹ûÊÇ0£¬Ôò·¢0
+  94   1              delay_us(104);
+  95   1              delay_us(104);
+  96   1      //      delay_1_ETU(); //ÑÓÊ±Ò»¸öetu
+  97   1              
+  98   1              SIM_IO = 1; //½«IOÀ­¸ß
+  99   1              delay_us(104);
+ 100   1              delay_us(104);
+ 101   1      //      delay_1_ETU();
+ 102   1              delay_us(104);
+ 103   1              delay_us(104);
+ 104   1      //      delay_1_ETU();
+ 105   1      
+ 106   1              SFRPAGE = SFRPAGE_SAVE;
+ 107   1      }                                                                    
+ 108          //****************************************************************************
+ 109          // SIM¿¨³õÊ¼»¯
+ 110          //****************************************************************************
+ 111          void SIM_Init()
+ 112          {
+ 113   1      //      unsigned char i;
+ 114   1              char  SFRPAGE_SAVE  = SFRPAGE;
+ 115   1              SFRPAGE = CONFIG_PAGE;
+ 116   1      
+ 117   1              SIM_RST = 0; //RST¸´Î»ÐÅºÅÐèÔÚÌá¹©CLKÐÅºÅºó400¸öÊ±ÖÓÖÜÆÚÄÚ±£³ÖµÍµçÆ½
+C51 COMPILER V7.06   SIM_CARD                                                              06/06/2014 09:50:48 PAGE 3   
+
+ 118   1              SIM_IO = 1; //½«I/O¶Ë¿ÚÖÃÎª½ÓÊÕ·½Ê½
+ 119   1              SIM_RST = 0; //RST¸´Î»ÐÅºÅÐèÔÚÌá¹©CLKÐÅºÅºó400¸öÊ±ÖÓÖÜÆÚÄÚ±£³ÖµÍµçÆ½
+ 120   1      
+ 121   1      //      delay_400_ETU();
+ 122   1              delay_ms(854);                   //854=400¸öetu£¬37.2ms
+ 123   1              delay_ms(854);                   //854=400¸öetu£¬37.2ms
+ 124   1      
+ 125   1      
+ 126   1              SIM_RST = 1; //Ìá¹©¸´Î»ÐÅºÅºó400¡«40000¸öÊ±ÖÓÖÜÆÚÄÚ£¬I/O¿ÚÓÐ¸´Î»Ó¦´ðATR
+ 127   1      
+ 128   1              tmp[0]=read_SIM_byte(); //ATRÐÅºÅ²»Ö¹3¸ö×Ö½Ú£¬´Ë´¦Ö»½ÓÊÕÁËÇ°3¸ö£¬ÆäËû×Ö½Ú¶ªÆú
+ 129   1              tmp[1]=read_SIM_byte();
+ 130   1              tmp[2]=read_SIM_byte();
+ 131   1      //      tmp[3]=read_SIM_byte();
+ 132   1      //      tmp[4]=read_SIM_byte();
+ 133   1      //      tmp[5]=read_SIM_byte();
+ 134   1      //      tmp[6]=read_SIM_byte();
+ 135   1      //      tmp[7]=read_SIM_byte();
+ 136   1      //      tmp[8]=read_SIM_byte();
+ 137   1      //  tmp[9]=read_SIM_byte();
+ 138   1      //      tmp[10]=read_SIM_byte();
+ 139   1      //      tmp[11]=read_SIM_byte();
+ 140   1      //      tmp[12]=read_SIM_byte();
+ 141   1      
+ 142   1              delay_ms(854);                  //854=400¸öetu£¬37.2ms
+ 143   1              delay_ms(854);                  //854=400¸öetu£¬37.2ms   
+ 144   1      //      delay_400_ETU();
+ 145   1      
+ 146   1              SFRPAGE = SFRPAGE_SAVE;
+ 147   1      }
+ 148          
+ 149          //****************************************************************************
+ 150          void SIM_select_file(uint FileID_H,uint FileID_L )          ///Ñ¡ÔñÎÄ¼þ
+ 151          {                                                   
+ 152   1              uchar i;
+ 153   1      
+ 154   1              write_SIM_byte(0x00);   delay_us(104);delay_us(104);
+ 155   1              write_SIM_byte(0xA4);   delay_us(104);delay_us(104);
+ 156   1              write_SIM_byte(0x00);   delay_us(104);delay_us(104);
+ 157   1              write_SIM_byte(0x00);   delay_us(104);delay_us(104);
+ 158   1              write_SIM_byte(0x02);   delay_us(104);delay_us(104);   //´Ë´¦ÎªÊ²Ã´ÊÇ02£¿ºÍÖÐ¹ú½ðÈÚPSAM¿¨Ó¦ÓÃ¹æ·¶²»Í¬
+ 159   1      
+ 160   1              tnp[0]=read_SIM_byte();                 //´Ë¾ä±ØÐëÒª¼Ó£¬·ñÔòºóÐø×Ö½Ú²»ÄÜ¶Á³ö
+ 161   1      
+ 162   1              delay_us(104);delay_us(104);
+ 163   1      
+ 164   1              write_SIM_byte(FileID_H);delay_us(104);delay_us(104);
+ 165   1          write_SIM_byte(FileID_L);delay_us(104);delay_us(104);
+ 166   1      
+ 167   1      
+ 168   1      
+ 169   1              tnp[1]=read_SIM_byte();
+ 170   1              tnp[2]=read_SIM_byte();
+ 171   1      //      tnp[3]=read_SIM_byte();
+ 172   1      
+ 173   1              for(i=0;i<12;i++)
+ 174   1              {
+ 175   2                      delay_us(104);delay_us(104);
+ 176   2              }
+ 177   1      
+ 178   1      }
+ 179          
+C51 COMPILER V7.06   SIM_CARD                                                              06/06/2014 09:50:48 PAGE 4   
+
+ 180          void SIM_get_response(res_num)          //È¡ÏìÓ¦Êý¾Ý
+ 181          {                                                   
+ 182   1              uchar i;
+ 183   1      
+ 184   1              write_SIM_byte(0x00);
+ 185   1              write_SIM_byte(0xc0);
+ 186   1              write_SIM_byte(0x00);
+ 187   1              write_SIM_byte(0x00);
+ 188   1              write_SIM_byte(res_num);
+ 189   1              
+ 190   1              for(i=0;i<res_num+3;i++)
+ 191   1              {
+ 192   2                      tnp[i]=read_SIM_byte(); delay_us(104);delay_us(104);
+ 193   2              }
+ 194   1      
+ 195   1      }
+ 196          
+ 197          void SIM_read_0016()            //¶Á¶þ½øÖÆÎÄ¼þ0016
+ 198          {                                                   
+ 199   1              uchar i;
+ 200   1      
+ 201   1              write_SIM_byte(0x00);   delay_us(104);delay_us(104);
+ 202   1              write_SIM_byte(0xb0);   delay_us(104);delay_us(104);
+ 203   1              write_SIM_byte(0x96);   delay_us(104);delay_us(104);
+ 204   1              write_SIM_byte(0x00);   delay_us(104);delay_us(104);
+ 205   1              write_SIM_byte(0x06);   delay_us(104);delay_us(104);
+ 206   1      
+ 207   1              tnp[0]=read_SIM_byte();
+ 208   1              tnp[1]=read_SIM_byte();
+ 209   1              tnp[2]=read_SIM_byte();
+ 210   1              tnp[3]=read_SIM_byte();
+ 211   1              tnp[4]=read_SIM_byte();
+ 212   1              tnp[5]=read_SIM_byte();
+ 213   1              tnp[6]=read_SIM_byte();
+ 214   1              tnp[7]=read_SIM_byte();
+ 215   1              tnp[8]=read_SIM_byte();
+ 216   1      
+ 217   1              for(i=0;i<12;i++)
+ 218   1              {
+ 219   2                      delay_us(104);delay_us(104);
+ 220   2              }
+ 221   1      
+ 222   1      }
+ 223          
+ 224          
+ 225          
+ 226          void SIM_auth()         //ÈÏÖ¤°²È«ÈÏÖ¤Âë
+ 227          {                                                   
+ 228   1              uchar i;
+ 229   1      
+ 230   1              write_SIM_byte(0x80);   delay_us(104);delay_us(104);
+ 231   1              write_SIM_byte(0xCA);   delay_us(104);delay_us(104);
+ 232   1              write_SIM_byte(0x00);   delay_us(104);delay_us(104);
+ 233   1              write_SIM_byte(0x00);   delay_us(104);delay_us(104);
+ 234   1              write_SIM_byte(0x09);   delay_us(104);delay_us(104);
+ 235   1              
+ 236   1              tnp[0]=read_SIM_byte();delay_us(104);delay_us(104);
+ 237   1              delay_us(104);delay_us(104);delay_us(104);delay_us(104);
+ 238   1              delay_us(104);delay_us(104);delay_us(104);delay_us(104);
+ 239   1              delay_us(104);
+ 240   1      
+ 241   1              write_SIM_byte(0x8c);   delay_us(104);delay_us(104);   // 8C 01 30 43 39 5E 82 3E AF, 9 HEXµÄ·ÖÉ¢Òò×Ó
+C51 COMPILER V7.06   SIM_CARD                                                              06/06/2014 09:50:48 PAGE 5   
+
+ 242   1              write_SIM_byte(0x01);   delay_us(104);delay_us(104);
+ 243   1              write_SIM_byte(0x30);   delay_us(104);delay_us(104);
+ 244   1              write_SIM_byte(0x43);   delay_us(104);delay_us(104);
+ 245   1              write_SIM_byte(0x39);   delay_us(104);delay_us(104);  
+ 246   1              write_SIM_byte(0x5e);   delay_us(104);delay_us(104);
+ 247   1              write_SIM_byte(0x82);   delay_us(104);delay_us(104);
+ 248   1              write_SIM_byte(0x3e);   delay_us(104);delay_us(104);
+ 249   1              write_SIM_byte(0xaf);   delay_us(104);delay_us(104);
+ 250   1      
+ 251   1              for(i=0;i<16;i++)                       //ÑÓÊ±²»¼Ó£¬Ôò´íÎóÐÅÏ¢·µ»ØÊÇÕýÈ·µÄ£¬Õý³£·µ»ØµÚÒ»×Ö½Ú84£¬×îºóÁ½¸ö×Ö½Ú9000£¬ÖÐ¼äËÄ¸ö×Ö½
+             -ÚµÄËæ»úÊý
+ 252   1              {
+ 253   2                      delay_us(104);delay_us(104);
+ 254   2              }
+ 255   1      
+ 256   1              tnp[1]=read_SIM_byte();
+ 257   1              tnp[2]=read_SIM_byte();
+ 258   1      
+ 259   1              for(i=0;i<12;i++)
+ 260   1              {
+ 261   2                      delay_us(104);delay_us(104);
+ 262   2              }
+ 263   1      
+ 264   1      }
+ 265          
+ 266          void SIM_get_MAC1()             //MAC1Ó‹Ëã
+ 267          {                                                   
+ 268   1              uchar i;
+ 269   1      
+ 270   1              write_SIM_byte(0x80);
+ 271   1              write_SIM_byte(0x70);
+ 272   1              write_SIM_byte(0x00);  
+ 273   1              write_SIM_byte(0x00);  
+ 274   1              write_SIM_byte(0x24);
+ 275   1      
+ 276   1              tnp[0]=read_SIM_byte();
+ 277   1              delay_us(104);delay_us(104);
+ 278   1      
+ 279   1      //29 6B 93 CB 
+ 280   1              write_SIM_byte(buffer[16]);     //Ëæ»úÊý£¬È¦´æ³õÊ¼»¯·µ»ØµÄËæ»úÊý
+ 281   1              write_SIM_byte(buffer[17]);
+ 282   1              write_SIM_byte(buffer[18]);
+ 283   1              write_SIM_byte(buffer[19]);
+ 284   1      
+ 285   1      
+ 286   1              write_SIM_byte(buffer[9]);  //ÓÃ»§¿¨½»Ò×ÐòºÅ,¼´¿¨¼ÆÊýÆ÷µÄÖµ  //·Ç¶¨Öµ£¬Ã¿´Î½»Ò×ºóÐè¸Ä¶¯
+ 287   1              write_SIM_byte(buffer[10]);
+ 288   1      
+ 289   1              write_SIM_byte(0x00);   //½»Ò×½ð¶î
+ 290   1              write_SIM_byte(0x00);
+ 291   1              write_SIM_byte(0x00);
+ 292   1              write_SIM_byte(0x32);
+ 293   1      
+ 294   1              write_SIM_byte(0x06);   //½»Ò×ÀàÐÍ±êÊ¶
+ 295   1      
+ 296   1              write_SIM_byte(0x01);   //½»Ò×ÈÕÆÚ
+ 297   1              write_SIM_byte(0x01);
+ 298   1              write_SIM_byte(0x01);
+ 299   1              write_SIM_byte(0x01);
+ 300   1      
+ 301   1      
+ 302   1              write_SIM_byte(0x01);   //½»Ò×Ê±¼ä
+C51 COMPILER V7.06   SIM_CARD                                                              06/06/2014 09:50:48 PAGE 6   
+
+ 303   1              write_SIM_byte(0x01);
+ 304   1              write_SIM_byte(0x02);
+ 305   1      
+ 306   1              write_SIM_byte(0x01);   //ÃÜÔ¿°æ±¾
+ 307   1      
+ 308   1              write_SIM_byte(0x00);   //ÃÜÔ¿Ëã·¨±êÊ¶
+ 309   1      
+ 310   1              write_SIM_byte(0x15);  //ÓÃ»§¿¨ÐòÁÐºÅ
+ 311   1              write_SIM_byte(0x00);
+ 312   1              write_SIM_byte(0x00);
+ 313   1              write_SIM_byte(0x00);
+ 314   1              write_SIM_byte(0x05);
+ 315   1              write_SIM_byte(0xF5);
+ 316   1              write_SIM_byte(0xDC);
+ 317   1              write_SIM_byte(0x2D);
+ 318   1      
+ 319   1              write_SIM_byte(0x15);   //ÊÔµã³ÇÊÐ±êÊ¶
+ 320   1              write_SIM_byte(0x00);
+ 321   1              write_SIM_byte(0xFF);
+ 322   1              write_SIM_byte(0x00);
+ 323   1              write_SIM_byte(0x00);
+ 324   1              write_SIM_byte(0x00);
+ 325   1              write_SIM_byte(0x00);
+ 326   1              write_SIM_byte(0x00);
+ 327   1      
+ 328   1              tnp[1]=read_SIM_byte();
+ 329   1              tnp[2]=read_SIM_byte();
+ 330   1      
+ 331   1              for(i=0;i<12;i++)
+ 332   1              {
+ 333   2                      delay_us(104);delay_us(104);
+ 334   2              }
+ 335   1      
+ 336   1      }
+ 337          void SIM_check_MAC2()           //Ð£ÑéMAC2
+ 338          {                                                   
+ 339   1              uchar i;
+ 340   1      
+ 341   1              write_SIM_byte(0x80);
+ 342   1              write_SIM_byte(0x72);
+ 343   1              write_SIM_byte(0x00);
+ 344   1              write_SIM_byte(0x00);
+ 345   1              write_SIM_byte(0x04);
+ 346   1      
+ 347   1              tnp[0]=read_SIM_byte();
+ 348   1              delay_us(104);delay_us(104);
+ 349   1      
+ 350   1      //10 AC 96 DA
+ 351   1              write_SIM_byte(buffer[9]); //MAC2£¬4hex
+ 352   1              write_SIM_byte(buffer[10]); 
+ 353   1              write_SIM_byte(buffer[11]);
+ 354   1              write_SIM_byte(buffer[12]);
+ 355   1      
+ 356   1              tnp[1]=read_SIM_byte();
+ 357   1              tnp[2]=read_SIM_byte();
+ 358   1              
+ 359   1              for(i=0;i<12;i++)
+ 360   1              {
+ 361   2                      delay_us(104);delay_us(104);
+ 362   2              }
+ 363   1      }
+ 364          
+C51 COMPILER V7.06   SIM_CARD                                                              06/06/2014 09:50:48 PAGE 7   
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1636    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----      19
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =     58    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

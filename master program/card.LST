@@ -1,0 +1,305 @@
+C51 COMPILER V7.06   CARD                                                                  06/06/2014 09:50:48 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE CARD
+OBJECT MODULE PLACED IN card.OBJ
+COMPILER INVOKED BY: D:\English AZH\keil\C51\BIN\C51.EXE card.c COMPACT BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          #include "card.h"
+   2          #include "uart.h"
+   3          #include "yuyin.h"
+   4          #include "sim_card.h"
+   5          #include "function.h"
+   6          
+   7          unsigned char CARD_UID_buffer[4]={0};            //¿¨µÄ4×Ö½ÚUID´æ´¢
+   8          
+   9          
+  10          //****************************************************************************
+  11          //CPU¿¨/M1¿¨ÃüÁî
+  12          //****************************************************************************
+  13          void CARD_CONNECT_Enable()     //02 00 04 A2 31 00 00 93 03                     //Á¬½Ó¿¨Æ¬
+  14          {
+  15   1              Uart1_SendByte(0x02);
+  16   1              Uart1_SendByte(0x00);Uart1_SendByte(0x04);
+  17   1              Uart1_SendByte(0xA2);Uart1_SendByte(0x31);Uart1_SendByte(0x00);Uart1_SendByte(0x00);
+  18   1              Uart1_SendByte(0x93);
+  19   1              Uart1_SendByte(0x03);
+  20   1      }
+  21          //****************************************************************************
+  22          //CPU¿¨ÃüÁî
+  23          //****************************************************************************
+  24          void CPU_SELECT_3F01()     //02 00 09 a2 33 00 a4 00 00 02 3F 01 09 03  //Ñ¡Ôñ 3F01
+  25          {
+  26   1              Uart1_SendByte(0x02);
+  27   1              Uart1_SendByte(0x00);Uart1_SendByte(0x09);
+  28   1              Uart1_SendByte(0xA2);Uart1_SendByte(0x33);Uart1_SendByte(0x00);Uart1_SendByte(0xA4);
+  29   1              Uart1_SendByte(0x00);Uart1_SendByte(0x00);Uart1_SendByte(0x02);Uart1_SendByte(0x3F);Uart1_SendByte(0x01);
+  30   1              Uart1_SendByte(0x09);
+  31   1              Uart1_SendByte(0x03);
+  32   1      }
+  33          //-----------------------------------------------------------------------------
+  34          void CPU_GET_FACTOR()     //02 00 07 a2 33 80 ca 00 00 09 D2 03     //»ñÈ¡·ÖÉ¢Òò×Ó
+  35          {
+  36   1              Uart1_SendByte(0x02);
+  37   1              Uart1_SendByte(0x00);Uart1_SendByte(0x07);
+  38   1              Uart1_SendByte(0xA2);Uart1_SendByte(0x33);Uart1_SendByte(0x80);
+  39   1              Uart1_SendByte(0xCA);Uart1_SendByte(0x00);Uart1_SendByte(0x00);Uart1_SendByte(0x09);
+  40   1              Uart1_SendByte(0xD2);
+  41   1              Uart1_SendByte(0x03);
+  42   1      }
+  43          //-----------------------------------------------------------------------------
+  44          void CPU_INIT_LOAD()     //02 00 12 a2 33 80 50 01 02 0b 01 00 00 00 32 00 00 01 00 01 11 58 03   //    È¦´æ
+             -³õÊ¼»¯,ÆäÖÐ00 00 01 00 01 12/11ÎªPOSID
+  45          {
+  46   1              Uart1_SendByte(0x02);
+  47   1              Uart1_SendByte(0x00);Uart1_SendByte(0x12);
+  48   1              Uart1_SendByte(0xA2);Uart1_SendByte(0x33);Uart1_SendByte(0x80);Uart1_SendByte(0x50);Uart1_SendByte(0x01);
+  49   1              Uart1_SendByte(0x02);Uart1_SendByte(0x0B);Uart1_SendByte(0x01);Uart1_SendByte(0x00);Uart1_SendByte(0x00);
+  50   1              Uart1_SendByte(0x00);Uart1_SendByte(0x32);Uart1_SendByte(0x00);Uart1_SendByte(0x00);Uart1_SendByte(0x01);
+  51   1              Uart1_SendByte(0x00);Uart1_SendByte(0x01);Uart1_SendByte(0x11);
+  52   1              Uart1_SendByte(0x6B); //12-68///11-6b
+  53   1              Uart1_SendByte(0x03);
+  54   1      }
+C51 COMPILER V7.06   CARD                                                                  06/06/2014 09:50:48 PAGE 2   
+
+  55          //-----------------------------------------------------------------------------
+  56          void CPU_GOTO_CONSUME()         //02 00 16 a2 33 80 54 01 00 0f 00 00 00 04(4hexÖÕ¶ËÁ÷Ë®)01 01 01 01 01 01 02 de 
+             -4f 7e 3e(4hexÎ±Ëæ»úÊý) 9C 03//Ïû·ÑÃüÁî
+  57          {
+  58   1              Uart1_SendByte(0x02);
+  59   1              Uart1_SendByte(0x00);Uart1_SendByte(0x16);
+  60   1              Uart1_SendByte(0xA2);Uart1_SendByte(0x33);Uart1_SendByte(0x80);Uart1_SendByte(0x54);Uart1_SendByte(0x01);
+             -Uart1_SendByte(0x00);Uart1_SendByte(0x0f);
+  61   1              Uart1_SendByte(tnp[1]);Uart1_SendByte(tnp[2]);Uart1_SendByte(tnp[3]);Uart1_SendByte(tnp[4]);
+  62   1              Uart1_SendByte(0x01);Uart1_SendByte(0x01);Uart1_SendByte(0x01);Uart1_SendByte(0x01);Uart1_SendByte(0x01);
+             -Uart1_SendByte(0x01);Uart1_SendByte(0x02);
+  63   1              Uart1_SendByte(tnp[5]);Uart1_SendByte(tnp[6]);Uart1_SendByte(tnp[7]);Uart1_SendByte(tnp[8]);
+  64   1              Uart1_SendByte(0x4B^tnp[1]^tnp[2]^tnp[3]^tnp[4]^0x02^tnp[5]^tnp[6]^tnp[7]^tnp[8]);
+  65   1              Uart1_SendByte(0x03);
+  66   1      }
+  67          //-----------------------------------------------------------------------------
+  68          //void CPU_READ_0015()     //02 00 07 A2 33 00 B0 95 00 1E AA 03                        //¶Á¹«¹²Ó¦ÓÃ»ù±¾ÎÄ¼þ0015
+  69          //{
+  70          //      Uart1_SendByte(0x02);
+  71          //      Uart1_SendByte(0x00);Uart1_SendByte(0x07);
+  72          //      Uart1_SendByte(0xA2);Uart1_SendByte(0x33);Uart1_SendByte(0x00);Uart1_SendByte(0xB0);Uart1_SendByte(0x95
+             -);Uart1_SendByte(0x00);Uart1_SendByte(0x1E);
+  73          //      Uart1_SendByte(0xAA);
+  74          //      Uart1_SendByte(0x03);
+  75          //}
+  76          //-----------------------------------------------------------------------------
+  77          //void CPU_GET_RANDOM()     //02 00 07 A2 33 00 84 00 00 04 11 03                       //È¡Ëæ»úÊý
+  78          //{
+  79          //      Uart1_SendByte(0x02);
+  80          //      Uart1_SendByte(0x00);Uart1_SendByte(0x07);
+  81          //      Uart1_SendByte(0xA2);Uart1_SendByte(0x33);Uart1_SendByte(0x00);Uart1_SendByte(0x84);Uart1_SendByte(0x00
+             -);Uart1_SendByte(0x00);Uart1_SendByte(0x04);
+  82          //      Uart1_SendByte(0x11);
+  83          //      Uart1_SendByte(0x03);
+  84          //}
+  85          //****************************************************************************
+  86          //M1¿¨ÃüÁî
+  87          //****************************************************************************
+  88          void M1_AUTOR_KEYA()     //02 00 0E A2 33 60 18 FF FF FF FF FF FF 7E BF AE 0F 89 03    // AUTOR KEY A
+  89          {
+  90   1              Uart1_SendByte(0x02);
+  91   1              Uart1_SendByte(0x00);Uart1_SendByte(0x0E);
+  92   1              Uart1_SendByte(0xA2);Uart1_SendByte(0x33);Uart1_SendByte(0x60);Uart1_SendByte(0x18);Uart1_SendByte(0xFF);
+             -Uart1_SendByte(0xFF);Uart1_SendByte(0xFF);
+  93   1              Uart1_SendByte(0xFF);Uart1_SendByte(0xFF);Uart1_SendByte(0xFF);Uart1_SendByte(CARD_UID_buffer[0]);Uart1_S
+             -endByte(CARD_UID_buffer[1]);Uart1_SendByte(CARD_UID_buffer[2]);Uart1_SendByte(CARD_UID_buffer[3]);
+  94   1              Uart1_SendByte(0xE9^CARD_UID_buffer[0]^CARD_UID_buffer[1]^CARD_UID_buffer[2]^CARD_UID_buffer[3]);
+  95   1              Uart1_SendByte(0x03);
+  96   1      }
+  97          //-----------------------------------------------------------------------------
+  98          void M1_READ_BLOCK()     //02 00 04 A2 33 30 18 B9 03   //READ BLOCK
+  99          {
+ 100   1              Uart1_SendByte(0x02);
+ 101   1              Uart1_SendByte(0x00);Uart1_SendByte(0x04);
+ 102   1              Uart1_SendByte(0xA2);Uart1_SendByte(0x33);Uart1_SendByte(0x30);Uart1_SendByte(0x18);
+ 103   1              Uart1_SendByte(0xB9);
+ 104   1              Uart1_SendByte(0x03);
+ 105   1      }
+ 106          //-----------------------------------------------------------------------------
+ 107          void M1_REDUCE_VALUE(unsigned char val)    //02 00 08 A2 33 C0 18 val 00 00 00  4A 03 //œpÖµ VALžé·ù¶È
+ 108          {
+ 109   1              Uart1_SendByte(0x02);
+C51 COMPILER V7.06   CARD                                                                  06/06/2014 09:50:48 PAGE 3   
+
+ 110   1              Uart1_SendByte(0x00);Uart1_SendByte(0x08);
+ 111   1              Uart1_SendByte(0xA2);Uart1_SendByte(0x33);Uart1_SendByte(0xC0);Uart1_SendByte(0x18);
+ 112   1              Uart1_SendByte(val);Uart1_SendByte(0x00);Uart1_SendByte(0x00);Uart1_SendByte(0x00);
+ 113   1              Uart1_SendByte(0x49^val);
+ 114   1              Uart1_SendByte(0x03);
+ 115   1      }
+ 116          //-----------------------------------------------------------------------------
+ 117          void M1_Transfer()     //02 00 04 A2 33 B0 18 39 03     //Transfer
+ 118          {
+ 119   1              Uart1_SendByte(0x02);
+ 120   1              Uart1_SendByte(0x00);Uart1_SendByte(0x04);
+ 121   1              Uart1_SendByte(0xA2);Uart1_SendByte(0x33);Uart1_SendByte(0xB0);Uart1_SendByte(0x18);
+ 122   1              Uart1_SendByte(0x39);
+ 123   1              Uart1_SendByte(0x03);
+ 124   1      }
+ 125          //-----------------------------------------------------------------------------
+ 126          void CARD_connect_disable()     //02 00 04 A2 32 00 A0 30 03  //¶Ï¿ªÁ¬½Ó
+ 127          {
+ 128   1              Uart1_SendByte(0x02);
+ 129   1              Uart1_SendByte(0x00);Uart1_SendByte(0x04);
+ 130   1              Uart1_SendByte(0xA2);Uart1_SendByte(0x32);Uart1_SendByte(0x00);Uart1_SendByte(0xa0);
+ 131   1              Uart1_SendByte(0x30);
+ 132   1              Uart1_SendByte(0x03);
+ 133   1      }
+ 134          //--------------------------------------------------------------------------------------------------------
+             --
+ 135          //M1¿¨Ïû·ÑÁ÷³Ì
+ 136          //--------------------------------------------------------------------------------------------------------
+             --
+ 137          void M1_Operation_Process()
+ 138          {
+ 139   1              if((buffer[3]==0xC0)&&(buffer[4]==0x00)&&(buffer[5]==0x00)&&(buffer[6]==0x00)&&(buffer[7]==0x04)&&(buffer
+             -[14]==0x03))//´Ë¿¨žéM1¿¨
+ 140   1              {  
+ 141   2                      //-----------------------------------------------------------------
+ 142   2                      if( Uart1_Received_Flag == 1)                   //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî) 
+ 143   2                      {       
+ 144   3                              M1_AUTOR_KEYA();                                        // AUTOR KEY A
+ 145   3                              Uart1_Judge_received();
+ 146   3                              //-----------------------------
+ 147   3                              if( Uart1_Received_Flag == 1)           //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî) 
+ 148   3                              {       
+ 149   4                                      M1_READ_BLOCK();                                // READ BLOCK
+ 150   4                                      Uart1_Judge_received();
+ 151   4                                      //-------------------------------
+ 152   4                                      remaining_sum = (buffer[7]/16)*16*16*16*16*16+(buffer[7]%16)*16*16*16*16+(buffer[6]/16)*16*16*16+(buff
+             -er[6]%16)*16*16+(buffer[5]/16)*16+(buffer[5]%16);//´æ´¢Ïû·ÑÓà¶î
+ 153   4                                      if(  Uart1_Received_Flag == 1)  //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî) 
+ 154   4                                      {
+ 155   5                                              M1_AUTOR_KEYA();                 // AUTOR KEY A
+ 156   5                                              Uart1_Judge_received();
+ 157   5                                              //-------------------------------
+ 158   5                                              if(  Uart1_Received_Flag == 1)  //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî) 
+ 159   5                                              {
+ 160   6                                                      switch(CARD_UID_buffer[1])
+ 161   6                                                      {
+ 162   7                                                              case 0xBF:      
+ 163   7                                                                      M1_REDUCE_VALUE(0x5A);break;           // œpÖµ VALžé·ù¶È N1
+ 164   7                                                              case 0x16:      
+ 165   7                                                                      M1_REDUCE_VALUE(0x50);break;           // œpÖµ VALžé·ù¶È N2
+ 166   7                                                              case 0x53:      
+ 167   7                                                                      M1_REDUCE_VALUE(0x46);break;           // œpÖµ VALžé·ù¶È N3
+C51 COMPILER V7.06   CARD                                                                  06/06/2014 09:50:48 PAGE 4   
+
+ 168   7                                                              case 0xD8:      
+ 169   7                                                                      M1_REDUCE_VALUE(0x3C);break;           // œpÖµ VALžé·ù¶È N4
+ 170   7                                                              default:                                  break;
+ 171   7                                                      }       
+ 172   6                                                      Uart1_Judge_received();
+ 173   6                                                      //-------------------------------
+ 174   6                                                      if(  Uart1_Received_Flag == 1)  //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî) 
+ 175   6                                                      {
+ 176   7                                                              M1_AUTOR_KEYA();                   // AUTOR KEY A
+ 177   7                                                              Uart1_Judge_received();
+ 178   7                                                              //-------------------------------
+ 179   7                                                              if(  Uart1_Received_Flag == 1 )  //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî)
+ 180   7                                                              {
+ 181   8                                                                      M1_Transfer();                 // Transfer
+ 182   8                                                                      Uart1_Judge_received();
+ 183   8                                                                      //-------------------------------
+ 184   8                                                                      if( (Uart1_Received_Flag == 1)&&(buffer[3]!= 0xA0) )  //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî)
+ 185   8                                                                      {
+ 186   9                                                                              CARD_connect_disable();                 //¶Ï¿ªÁ¬½Ó
+ 187   9                                                                              yuyin_play(0x00);
+ 188   9                                                                              CARD_UID_Distinction_Play();        //¸ù¾ÝUID£¬ÏÔÊ¾Ã¿ÕÅ¿¨µÄÏû·Ñ½ð¶î£¬¼°ÓïÒôÌáÐÑ
+ 189   9                                                                      }
+ 190   8                                                               }
+ 191   7                                                      }
+ 192   6                                              }
+ 193   5                                      }
+ 194   4                              }
+ 195   3                      }
+ 196   2                }//if();´Ë¿¨žéM1¿¨
+ 197   1      }
+ 198          //--------------------------------------------------------------------------------------------------------
+             --
+ 199          //CPU¿¨Ïû·ÑÁ÷³Ì
+ 200          //--------------------------------------------------------------------------------------------------------
+             --
+ 201          void CPU_Operation_Process()                                    //CPU¿¨Ïû·ÑÁ÷³Ì
+ 202          {
+ 203   1              if((buffer[3]==0xC0)&&(buffer[4]==0x00)&&(buffer[5]==0x00)&&(buffer[6]==0x00)&&(buffer[7]==0x08)&&(buffer
+             -[14]==0x03))//´Ë¿¨žéCPU¿¨
+ 204   1               {
+ 205   2                      //------------------------------------
+ 206   2                      if( Uart1_Received_Flag == 1)              //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî) 
+ 207   2                      {       
+ 208   3                              CPU_SELECT_3F01();                                 //Ñ¡Ôñ 3F01  
+ 209   3                              Uart1_Judge_received(); 
+ 210   3                              //-----------------------------------
+ 211   3                              if( Uart1_Received_Flag == 1)      //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî) 
+ 212   3                              {       
+ 213   4                                      CPU_GET_FACTOR();                          //»ñÈ¡·ÖÉ¢Òò×Ó
+ 214   4                                      Uart1_Judge_received();         
+ 215   4                                      //------------------------------------
+ 216   4                                      if( Uart1_Received_Flag == 1)  //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî) 
+ 217   4                                      {       
+ 218   5                                              CPU_INIT_LOAD();                   //È¦´æ³õÊ¼»¯
+ 219   5                                              Uart1_Judge_received(); 
+ 220   5                                              remaining_sum = (buffer[7]/16)*16*16*16+(buffer[7]%16)*16*16+(buffer[8]/16)*16+(buffer[8]%16);//´æ´¢Ï
+             -û·ÑÓà¶î
+ 221   5                                      }
+ 222   4                          }
+ 223   3                       }
+ 224   2              //      SIM_select_file(0x3f,0x00);
+ 225   2              //      SIM_get_response(0x04);
+C51 COMPILER V7.06   CARD                                                                  06/06/2014 09:50:48 PAGE 5   
+
+ 226   2              //      SIM_read_0016();                                //¶Á¶þ½øÖÆÎÄ¼þ0016»ñµÃPSAM¿¨posID
+ 227   2                      SIM_select_file(0x10,0x01);
+ 228   2                      SIM_get_response(0x28);                 //0x28¸ö·µ»ØÖµ
+ 229   2                      SIM_auth();                                             //ÈÏÖ¤°²È«ÈÏÖ¤Âë
+ 230   2                      //----------------------------------------------
+ 231   2                      if((tnp[1] == 0x90)&&(tnp[2] == 0x00)&&(buffer[2] == 0x13)&&(buffer[20] == 0x90)&&(buffer[21] == 0x00))/
+             -/Ö»ÓÐµ±È¦´æ³õÊ¼»¯Í¨¹ý£¬²¢ÇÒ°²È«ÈÏÖ¤Í¨¹ýÊ±£¬²Å½øÐÐMAC1µÄ¼ÆËã
+ 232   2                      {
+ 233   3                              SIM_get_MAC1();                                 //»ñµÃMAC1
+ 234   3                              SIM_get_response(0x08);                 //0x08¸ö·µ»ØÖµ
+ 235   3                              //---------------------------------------------
+ 236   3                              if((tnp[0] == 0xc0)&&(tnp[9] == 0x90)&&(tnp[10] == 0x00)&&(Uart1_Received_Flag == 1))//Ö»ÓÐµ±MAC1¼ÆËãÕý
+             -È·Ê±£¬²Å½øÐÐÏû·ÑÃüÁî
+ 237   3                              {       
+ 238   4                                      CPU_GOTO_CONSUME();                     //Ïû·ÑÃüÁî
+ 239   4                                      Uart1_Judge_received();  
+ 240   4                                      //--------------------------------------------------
+ 241   4                                      if((buffer[2] == 0x0c)&&(buffer[13] == 0x90)&&(buffer[14] == 0x00))//Ö»ÓÐµ±Ïû·ÑÕýÈ·Ê±£¬²Å½øÐÐMAC2µÄÐ£Ñ
+             -é
+ 242   4                                      {
+ 243   5                                              SIM_check_MAC2();               //Ð£ÑéMAC2
+ 244   5                                              //------------------------------------------------------
+ 245   5                                              if( (Uart1_Received_Flag == 1)&&(buffer[3]!= 0xA0) )  //±íÊ¾´®¿Ú½ÓÊÕÍê±Ï£¬Õý³£ÍË³ö(ÉÏÒ»ÌõÖ¸Áî)
+ 246   5                                              {
+ 247   6                                                      CARD_connect_disable();                 //¶Ï¿ªÁ¬½Ó
+ 248   6                                                      yuyin_play(0x00);
+ 249   6                                                      CARD_UID_Distinction_Play();        //¸ù¾ÝUID£¬ÏÔÊ¾Ã¿ÕÅ¿¨µÄÏû·Ñ½ð¶î£¬¼°ÓïÒôÌáÐÑ
+ 250   6                                              }
+ 251   5                                      }
+ 252   4                              }
+ 253   3                      }
+ 254   2               }//if();´Ë¿¨žéCPU¿¨
+ 255   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1343    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =      4       1
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

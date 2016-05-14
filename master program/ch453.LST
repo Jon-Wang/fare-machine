@@ -1,0 +1,302 @@
+C51 COMPILER V7.06   CH453                                                                 06/06/2014 09:50:48 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE CH453
+OBJECT MODULE PLACED IN ch453.OBJ
+COMPILER INVOKED BY: D:\English AZH\keil\C51\BIN\C51.EXE ch453.c COMPACT BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /* ************************************************************************
+   2          
+   3                                                                  CH453 ½Ó¿Ú×Ó³ÌÐò
+   4          
+   5          ***************************************************************************
+   6           Ãû³Æ£ºCH453 ½Ó¿Ú×Ó³ÌÐò
+   7           Ê±¼ä£º2014.2.16
+   8           ÄÚÈÝ£º±¾³ÌÐò°üÀ¨£º
+   9                     CH453”µ´a¹ÜÏÔÊ¾Óë°´¼üÉ¨Ãèº¯Êý
+  10           ËµÃ÷£ºCH453µÄ2Ïß½Ó¿Ú£¬Ö»ÐèÒª2¸öI/OÒý½Å£¬¼æÈÝI2C/IICÊ±Ðò£¬ÎªÁË½ÚÔ¼´«ÊäÊ±¼ä£¬¿ÉÒÔÊÊµ±¼õÉÙSCL/SDAÖ®¼äµÄÑÓÊ±
+  11                 Èç¹ûÏ£ÍûSCLÓëÆäËüµçÂ·¹²ÓÃ£¬ÄÇÃ´Ö»Òª±£³ÖSDA²»±ä»¯£¬SCL¾Í¿ÉÒÔÓÃÓÚÈÎºÎÓÃÍ¾
+  12                     Èç¹ûÏ£ÍûSCLºÍSDA¶¼ÓëÆäËüµçÂ·¹²ÓÃ£¬ÄÇÃ´¹Ø¼üÊÇÈ·±£SDAÖ»ÔÚSCLÎªµÍµçÆ½ÆÚ¼ä·¢Éú±ä»¯£¬ËùÒÔSCLºÍSDAÊÊºÏ×÷ÎªÊ
+             -ä³öÒý½ÅÊ¹ÓÃ
+  13                    1¡¢¶ÔÓÚSCLÒý½Å£¬Ö±½ÓÊä³ö
+  14                    2¡¢¶ÔÓÚSDAÒý½Å£¬Êä³öÊ±£º
+  15                       Èç¹ûSCLÎªµÍµçÆ½£¬ÄÇÃ´Ö±½ÓÊä³ö£¬
+  16                       Èç¹ûSCLÎª¸ßµçÆ½£¬ÄÇÃ´ÏÈ½«SCLÊä³öµÍµçÆ½£¬ÔÙ½«SDAÊä³ö£¬×îºó½«SCL»Ö¸´Îª¸ßµçÆ½
+  17           ×öß^µÄÐÞ¸Ä£º É¾³ýÊý¾ÝÓ³Ïó»º´æÇø  2014 4-30  11:22
+  18          *************************************************************************** */
+  19          #include        "ch453.h"
+  20          #include    "delay.h"
+  21          
+  22          const unsigned char xdata BCD_decode_tab[0x10] = { 0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0
+             -x6F, 0x77, 0x7C, 0x58, 0x5E, 0x79, 0x71 };            
+  23          void CH453_I2c_Start(unsigned char ch453_num)  // ²Ù×÷ÆðÊ¼
+  24          {
+  25   1              char  SFRPAGE_SAVE  = SFRPAGE;
+  26   1              SFRPAGE = CONFIG_PAGE;
+  27   1              if(ch453_num==CH453_F)
+  28   1              {
+  29   2                      CH453_SDA_SET_F;   /*·¢ËÍÆðÊ¼Ìõ¼þµÄÊý¾ÝÐÅºÅ*/
+  30   2                      CH453_SDA_D_OUT_F;   /* ÉèÖÃSDAÎªÊä³ö·½Ïò */
+  31   2                      CH453_SCL_SET_F;
+  32   2                      CH453_SCL_D_OUT_F;   /* ÉèÖÃSCLÎªÊä³ö·½Ïò */
+  33   2                      DELAY_0_1US;  delay_us(1);      
+  34   2              
+  35   2                      CH453_SDA_CLR_F;   /*·¢ËÍÆðÊ¼ÐÅºÅ*/
+  36   2                      DELAY_0_1US; delay_us(1);  
+  37   2              
+  38   2                      CH453_SCL_CLR_F;   /*Ç¯×¡I2C×ÜÏß£¬×¼±¸·¢ËÍ»ò½ÓÊÕÊý¾Ý */
+  39   2              }
+  40   1              if(ch453_num==CH453_S)
+  41   1              {
+  42   2                      CH453_SDA_SET_S;   /*·¢ËÍÆðÊ¼Ìõ¼þµÄÊý¾ÝÐÅºÅ*/
+  43   2                      CH453_SDA_D_OUT_S;   /* ÉèÖÃSDAÎªÊä³ö·½Ïò */
+  44   2                      CH453_SCL_SET_S;
+  45   2                      CH453_SCL_D_OUT_S;   /* ÉèÖÃSCLÎªÊä³ö·½Ïò */
+  46   2                      DELAY_0_1US; delay_us(1); 
+  47   2              
+  48   2                      CH453_SDA_CLR_S;   /*·¢ËÍÆðÊ¼ÐÅºÅ*/
+  49   2                      DELAY_0_1US;  delay_us(1);
+  50   2              
+  51   2                      CH453_SCL_CLR_S;   /*Ç¯×¡I2C×ÜÏß£¬×¼±¸·¢ËÍ»ò½ÓÊÕÊý¾Ý */
+  52   2              }
+  53   1      
+C51 COMPILER V7.06   CH453                                                                 06/06/2014 09:50:48 PAGE 2   
+
+  54   1              SFRPAGE = SFRPAGE_SAVE;
+  55   1      }
+  56          
+  57          void CH453_I2c_Stop(unsigned char ch453_num)  // ²Ù×÷½áÊø
+  58          {
+  59   1              char  SFRPAGE_SAVE  = SFRPAGE;
+  60   1              SFRPAGE = CONFIG_PAGE;
+  61   1              
+  62   1              if(ch453_num==CH453_F)
+  63   1              {
+  64   2                      CH453_SDA_CLR_F;
+  65   2                      DELAY_0_1US;delay_us(1);
+  66   2              
+  67   2                      CH453_SCL_SET_F;
+  68   2                      DELAY_0_1US;delay_us(1);
+  69   2              
+  70   2                      CH453_SDA_SET_F;  /*·¢ËÍI2C×ÜÏß½áÊøÐÅºÅ*/
+  71   2                      DELAY_0_1US;delay_us(1);
+  72   2              }
+  73   1              if(ch453_num==CH453_S)
+  74   1              {
+  75   2                      CH453_SDA_CLR_S;
+  76   2                      DELAY_0_1US;delay_us(1);
+  77   2              
+  78   2                      CH453_SCL_SET_S;
+  79   2                      DELAY_0_1US;delay_us(1);
+  80   2              
+  81   2                      CH453_SDA_SET_S;  /*·¢ËÍI2C×ÜÏß½áÊøÐÅºÅ*/
+  82   2                      DELAY_0_1US;delay_us(1);
+  83   2              }
+  84   1      
+  85   1              SFRPAGE = SFRPAGE_SAVE;
+  86   1      }
+  87          
+  88          void CH453_I2c_WrByte(unsigned char dat,unsigned char ch453_num)        //Ð´Ò»¸ö×Ö½ÚÊý¾Ý
+  89          {
+  90   1      
+  91   1              unsigned char i;
+  92   1      
+  93   1              char  SFRPAGE_SAVE  = SFRPAGE;
+  94   1              SFRPAGE = CONFIG_PAGE;
+  95   1              if(ch453_num==CH453_F)
+  96   1              {
+  97   2                      for(i=0;i!=8;i++)  // Êä³ö8Î»Êý¾Ý
+  98   2                      {
+  99   3                              if(dat&0x80) {CH453_SDA_SET_F;}
+ 100   3                              else {CH453_SDA_CLR_F;}
+ 101   3                              DELAY_0_1US;delay_us(1);
+ 102   3                              CH453_SCL_SET_F;
+ 103   3                              dat<<=1;
+ 104   3                              DELAY_0_1US; delay_us(1);
+ 105   3                              CH453_SCL_CLR_F;
+ 106   3                      }
+ 107   2                      CH453_SDA_SET_F;
+ 108   2                      DELAY_0_1US;delay_us(1);
+ 109   2                      CH453_SCL_SET_F;  // ½ÓÊÕÓ¦´ð
+ 110   2                      DELAY_0_1US;delay_us(1);
+ 111   2                      CH453_SCL_CLR_F;
+ 112   2              }
+ 113   1              if(ch453_num==CH453_S)
+ 114   1              {
+ 115   2                      for(i=0;i!=8;i++)  // Êä³ö8Î»Êý¾Ý
+C51 COMPILER V7.06   CH453                                                                 06/06/2014 09:50:48 PAGE 3   
+
+ 116   2                      {
+ 117   3                              if(dat&0x80) {CH453_SDA_SET_S;}
+ 118   3                              else {CH453_SDA_CLR_S;}
+ 119   3                              DELAY_0_1US;delay_us(1);
+ 120   3                              CH453_SCL_SET_S;
+ 121   3                              dat<<=1;
+ 122   3                              DELAY_0_1US; delay_us(1); 
+ 123   3                              CH453_SCL_CLR_S;
+ 124   3                      }
+ 125   2                      CH453_SDA_SET_S;
+ 126   2                      DELAY_0_1US;delay_us(1);
+ 127   2                      CH453_SCL_SET_S;                                                                                // ½ÓÊÕÓ¦´ð
+ 128   2                      DELAY_0_1US;delay_us(1);
+ 129   2                      CH453_SCL_CLR_S;
+ 130   2              }
+ 131   1              SFRPAGE = SFRPAGE_SAVE;
+ 132   1      }
+ 133          
+ 134          void CH453_Write(unsigned short cmd,unsigned char ch453_num)    //Ð´ÃüÁî
+ 135          {
+ 136   1              CH453_I2c_Start(ch453_num);                     /*Æô¶¯×ÜÏß*/
+ 137   1              CH453_I2c_WrByte(((unsigned char)(cmd>>7)&CH453_I2C_MASK)|CH453_I2C_ADDR1,ch453_num);
+ 138   1              CH453_I2c_WrByte((unsigned char)cmd,ch453_num);               /*·¢ËÍÊý¾Ý*/
+ 139   1              CH453_I2c_Stop(ch453_num);                 /*½áÊø×ÜÏß*/ 
+ 140   1      }
+ 141          unsigned char  CH453_I2c_RdByte( unsigned char ch453_num )
+ 142          {
+ 143   1              unsigned char dat;
+ 144   1              unsigned char i;
+ 145   1      
+ 146   1              char  SFRPAGE_SAVE  = SFRPAGE;
+ 147   1              SFRPAGE = CONFIG_PAGE;
+ 148   1      
+ 149   1              if(ch453_num==CH453_F)
+ 150   1              {
+ 151   2                  CH453_SDA_SET_F;
+ 152   2                      DELAY_0_1US;delay_us(1);
+ 153   2                      dat = 0;
+ 154   2                      for( i = 0; i != 8; i++ )
+ 155   2                      {
+ 156   3                              CH453_SCL_SET_F;
+ 157   3                      DELAY_0_1US;delay_us(1);
+ 158   3              
+ 159   3                              dat <<= 1;
+ 160   3                              if( CH453_SDA_F) dat++;
+ 161   3              
+ 162   3                              CH453_SCL_CLR_F;
+ 163   3                      DELAY_0_1US;delay_us(1);
+ 164   3                      }  
+ 165   2                      CH453_SDA_SET_F;                 
+ 166   2                      DELAY_0_1US;delay_us(1);        
+ 167   2                      CH453_SCL_SET_F;        
+ 168   2                      DELAY_0_1US;delay_us(1);
+ 169   2                      CH453_SCL_CLR_F;
+ 170   2                      DELAY_0_1US;delay_us(1);
+ 171   2              }
+ 172   1              if(ch453_num==CH453_S)
+ 173   1              {
+ 174   2                  CH453_SDA_SET_S;
+ 175   2                      DELAY_0_1US;delay_us(1);
+ 176   2                      dat = 0;
+ 177   2                      for( i = 0; i != 8; i++ )
+C51 COMPILER V7.06   CH453                                                                 06/06/2014 09:50:48 PAGE 4   
+
+ 178   2                      {
+ 179   3                              CH453_SCL_SET_S;
+ 180   3                      DELAY_0_1US;delay_us(1);
+ 181   3              
+ 182   3                              dat <<= 1;
+ 183   3                              if( CH453_SDA_S) dat++;
+ 184   3              
+ 185   3                              CH453_SCL_CLR_S;
+ 186   3                      DELAY_0_1US;delay_us(1);
+ 187   3                      }  
+ 188   2                      CH453_SDA_SET_S;                 
+ 189   2                      DELAY_0_1US;delay_us(1);        
+ 190   2                      CH453_SCL_SET_S;        
+ 191   2                      DELAY_0_1US;delay_us(1);
+ 192   2                      CH453_SCL_CLR_S;
+ 193   2                      DELAY_0_1US;delay_us(1);
+ 194   2              }
+ 195   1              SFRPAGE = SFRPAGE_SAVE;
+ 196   1              return dat;
+ 197   1      }
+ 198          
+ 199          unsigned char CH453_Read(unsigned char ch453_num )              
+ 200          {
+ 201   1              unsigned char keycode;
+ 202   1              CH453_I2c_Start(ch453_num);        
+ 203   1              CH453_I2c_WrByte((unsigned char)(0x4700>>7)&CH453_I2C_MASK|0x01|CH453_I2C_ADDR1,ch453_num);    
+ 204   1              keycode=CH453_I2c_RdByte(ch453_num);      
+ 205   1              CH453_I2c_Stop(ch453_num);                
+ 206   1              return keycode;
+ 207   1      }
+ 208          
+ 209          void CH453_buf_write( unsigned short cmd,unsigned char ch453_num)  // ÏòCH453Êä³öÊý¾Ý»òÕß²Ù×÷ÃüÁî,×Ô¶¯½¨Á¢
+             -Êý¾ÝÓ³Ïó
+ 210          {
+ 211   1              CH453_Write( cmd,ch453_num);    // ·¢³ö
+ 212   1      }
+ 213          
+ 214          void CH453_buf_index( unsigned char index, unsigned char dat,unsigned char ch453_num)  // ÏòCH453Ö¸¶¨µÄÊýÂ
+             -ë¹ÜÊä³öÊý¾Ý,×Ô¶¯½¨Á¢Êý¾ÝÓ³Ïó
+ 215          // index ÎªÊýÂë¹ÜÐòºÅ,ÓÐÐ§ÖµÎª0µ½15,·Ö±ð¶ÔÓ¦DIG0µ½DIG15
+ 216          {
+ 217   1              unsigned short cmd;
+ 218   1              if(ch453_num==CH453_F)
+ 219   1              {
+ 220   2                      cmd = ( CH453_DIG0 + ( (unsigned short)index << 8 ) ) | dat ;   // Éú³É²Ù×÷ÃüÁî
+ 221   2              }
+ 222   1              if(ch453_num==CH453_S)
+ 223   1              {
+ 224   2                      cmd = ( CH453_DIG0 + ( (unsigned short)index << 8 ) ) | dat ;   // Éú³É²Ù×÷ÃüÁî
+ 225   2              }
+ 226   1              CH453_Write( cmd ,ch453_num);   // ·¢³ö
+ 227   1      }
+ 228          //-----------------------------------------------------------------
+ 229          //CH453³õÊ¼»¯
+ 230          //-----------------------------------------------------------------
+ 231          void CH453_INIT()       //CH453³õÊ¼»¯
+ 232          {
+ 233   1              unsigned char i;
+ 234   1              for (i = 0;i<15;i++ )   CH453_buf_index(i,0,CH453_F);  // ÒòÎªCH453¸´Î»Ê±²»Çå¿ÕÏÔÊ¾ÄÚÈÝ£¬ËùÒÔ¸Õ¿ªµçºó±ØÐëÈË
+             -ÎªÇå¿Õ£¬ÔÙ¿ªÏÔÊ¾      
+ 235   1              for (i = 0;i<16;i++ )   CH453_buf_index(i,0,CH453_S);  // ÒòÎªCH453¸´Î»Ê±²»Çå¿ÕÏÔÊ¾ÄÚÈÝ£¬ËùÒÔ¸Õ¿ªµçºó±ØÐëÈË
+             -ÎªÇå¿Õ£¬ÔÙ¿ªÏÔÊ¾
+C51 COMPILER V7.06   CH453                                                                 06/06/2014 09:50:48 PAGE 5   
+
+ 236   1      
+ 237   1              CH453_buf_write(0x040b,CH453_F);                                                  // ¿ªÆôÏÔÊ¾
+ 238   1              CH453_buf_write(0x040b,CH453_S);                                                  // ¿ªÆôÏÔÊ¾
+ 239   1                                                                                              
+ 240   1              CH453_buf_write(CH453_DIG14 | BCD_decode_tab[2],CH453_F);delay_us( 1 );
+ 241   1              CH453_buf_write(CH453_DIG13 | BCD_decode_tab[0],CH453_F);delay_us( 1 );
+ 242   1              CH453_buf_write(CH453_DIG8  | BCD_decode_tab[0],CH453_S);delay_us( 1 );
+ 243   1      }
+ 244          void Display_Remaining_Sum(unsigned int remaining_sum_s)                                                                //ÏÔÊ¾Óà¶î 58672(5Î»Êý)
+ 245          {       
+ 246   1              unsigned char i;
+ 247   1              for ( i = 7; i < 13; i ++ ) CH453_buf_index( i, 0 ,CH453_S);
+ 248   1                      CH453_buf_write(CH453_DIG7 | BCD_decode_tab[remaining_sum_s%100%10],CH453_S);delay_us( 1 );             //‚€Î»
+ 249   1              if((remaining_sum_s<100000)&&(remaining_sum_s>=10))
+ 250   1                      CH453_buf_write(CH453_DIG9 | BCD_decode_tab[remaining_sum_s%100/10],CH453_S);delay_us( 1 );             //Ê®
+             -Î»
+ 251   1              if((remaining_sum_s<100000)&&(remaining_sum_s>=100))
+ 252   1                      CH453_buf_write(CH453_DIG10 | BCD_decode_tab[remaining_sum_s/100%10] | 0x80,CH453_S);delay_us( 1 );     //°Ù
+             -Î»
+ 253   1              if((remaining_sum_s<100000)&&(remaining_sum_s>=1000))
+ 254   1                      CH453_buf_write(CH453_DIG11 | BCD_decode_tab[remaining_sum_s/1000%10],CH453_S);delay_us( 1 );           //Ç§Î»  
+ 255   1              if(remaining_sum_s>=10000)
+ 256   1                      CH453_buf_write(CH453_DIG12 | BCD_decode_tab[remaining_sum_s/10000],CH453_S);delay_us( 1 );             //ÍòÎ»
+ 257   1      }
+ 258          void Display_Consumption_Sum(Consumption_Sum)                                                                           //ÏÔÊ¾Ïû·Ñ½ð¶î
+ 259          {                       
+ 260   1              CH453_buf_write(CH453_DIG2 | BCD_decode_tab[0] | 0x80,CH453_S);delay_us( 1 );   //ÏÔÊ¾½»Ò×½ð¶î
+ 261   1              CH453_buf_write(CH453_DIG1 | BCD_decode_tab[Consumption_Sum],CH453_S);delay_us( 1 );
+ 262   1              CH453_buf_write(CH453_DIG0 | BCD_decode_tab[0],CH453_S);delay_us( 1 );
+ 263   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1344    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     16    ----
+   PDATA SIZE       =   ----      25
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

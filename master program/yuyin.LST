@@ -1,0 +1,76 @@
+C51 COMPILER V7.06   YUYIN                                                                 06/06/2014 09:50:49 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE YUYIN
+OBJECT MODULE PLACED IN yuyin.OBJ
+COMPILER INVOKED BY: D:\English AZH\keil\C51\BIN\C51.EXE yuyin.c COMPACT BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /* ************************************************************************
+   2          
+   3                                                                  YUYIN 语音子程序
+   4          
+   5          ***************************************************************************
+   6           名称：YUYIN 语音子程序
+   7           时间：2014.2.16
+   8           内容：本程序包括：
+   9                     语音播放函數
+  10           说明：语音程序，K1、K2实现串行语音控制，可以播放0x00~0xff地址中的256段语音
+  11          *************************************************************************** */
+  12          #include "yuyin.h"
+  13          #include "delay.h"
+  14          
+  15          void yuyin_set(unsigned char k1_data) 
+  16          {  
+  17   1              unsigned char i; 
+  18   1              K1 =0; 
+  19   1              delay(100);                             
+  20   1              K1 = 1;
+  21   1              delay(100);
+  22   1              K2 = 0;
+  23   1              for(i=0;i<8;i++) 
+  24   1              {       
+  25   2                      if((k1_data&0x01)==1) 
+  26   2                              { K1 = 1; } 
+  27   2                      else
+  28   2                              { K1 = 0; } 
+  29   2                              delay(120);                              
+  30   2                      K2 = 1;
+  31   2                       delay(120);                    
+  32   2                      k1_data = k1_data>>1; 
+  33   2                      K2 = 0; 
+  34   2              }
+  35   1              K1 = 1; 
+  36   1              K2 = 1;
+  37   1      }
+  38          void yuyin_play(unsigned char dat)
+  39          {
+  40   1              unsigned char h;
+  41   1      
+  42   1              for(h=dat;h<=dat;h++)       //収送从0x80地址到0x90地址的声音 
+  43   1                      {
+  44   2                              K1 = 1;
+  45   2                              K2 = 1;
+  46   2                              yuyin_set(h); 
+  47   2                              delay(100);
+  48   2                              while(O1 == 1);         //判断忙信号
+  49   2                              delay_1(250);
+  50   2                      }
+  51   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    128    ----
+C51 COMPILER V7.06   YUYIN                                                                 06/06/2014 09:50:49 PAGE 2   
+
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----       4
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
