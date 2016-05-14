@@ -7,7 +7,6 @@
 //------------------------------
 unsigned int remaining_sum = 0;			//存储消费余额
 //----------------------------------------------------------
-//----------------------------------------------------------
 void CARD_UID_Distinction_Play()        //根据UID，显示每张卡的消费金额，及语音提醒
 {
 	unsigned char i;
@@ -65,7 +64,7 @@ void DS1302_PLAY_TIME()			 //1302时间显示
 
 	CH453_buf_write(CH453_DIG7 | BCD_decode_tab[l_tmpdate[3]/10],CH453_F);delay_us( 1 );	  //日
 	CH453_buf_write(CH453_DIG8 | BCD_decode_tab[l_tmpdate[3]%10],CH453_F);delay_us( 1 );
-//		CH453_buf_write(CH453_DIG10 | BCD_decode_tab[l_tmpdate[4]/10],CH453_F);delay_us( 1 );	  //月
+//	CH453_buf_write(CH453_DIG10 | BCD_decode_tab[l_tmpdate[4]/10],CH453_F);delay_us( 1 );	  //月
 	CH453_buf_write(CH453_DIG9 | BCD_decode_tab[l_tmpdate[4]%10],CH453_F);delay_us( 1 );
 	CH453_buf_write(CH453_DIG12 | BCD_decode_tab[l_tmpdate[6]/10],CH453_F);delay_us( 1 );	  //年
 	CH453_buf_write(CH453_DIG11 | BCD_decode_tab[l_tmpdate[6]%10],CH453_F);delay_us( 1 );
